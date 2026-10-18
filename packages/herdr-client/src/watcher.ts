@@ -335,9 +335,15 @@ export class AgentWatcher extends EventEmitter {
         if (pane) this.applyPaneUpdate(pane);
         return;
       }
-      case "pane_focused":
-        // Focus alone does not change what we render.
+      case "pane_focused": {
+        const paneId = (event.data as { pane_id?: string }).pane_id;
+        if (this._state && paneId) {
+          this._state.focusedPaneId = paneId;
+          for (const agent of this._state.agents) agent.focused = agent.pane_id === paneId;
+          this.emit("agents", this._state);
+        }
         return;
+      }
       default:
         this.scheduleRefresh();
     }

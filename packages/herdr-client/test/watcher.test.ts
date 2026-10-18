@@ -49,6 +49,15 @@ describe("AgentWatcher", () => {
     expect(reconciled.agents[0]!.agent_status).toBe("blocked");
   });
 
+  it("tracks the focused pane from pane.focused events", async () => {
+    await start();
+    await sleep(30);
+    expect(watcher!.state?.focusedPaneId).toBeNull();
+    server.broadcast("pane.focused", { pane_id: "w1:p2", workspace_id: "w1" });
+    const focused = await waitFor<HerdrState>(watcher!, "agents", (s) => s.focusedPaneId === "w1:p2");
+    expect(focused.agents.map((a) => a.focused)).toEqual([false, true]);
+  });
+
   it("re-subscribes when a new agent pane appears", async () => {
     await start();
     await sleep(30);

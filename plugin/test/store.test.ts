@@ -90,6 +90,15 @@ describe("HostRegistry + AgentStore", () => {
     expect(store.find("B", "w9:p9", "nope")).toBeUndefined();
   });
 
+  it("reports the focused agent per host", async () => {
+    a.snapshot.focused_pane_id = "w1:p2";
+    b.snapshot.focused_pane_id = "w1:p9"; // a non-agent pane
+    registry.acquire("key-1", "");
+    await untilOnline("A", "B");
+    expect(store.focusedAgents("").map((r) => `${r.hostId}:${r.agent.pane_id}`)).toEqual(["A:w1:p2"]);
+    expect(store.focusedAgents("B")).toEqual([]);
+  });
+
   it("reports offline messages and restarts hosts whose config changed", async () => {
     registry.acquire("key-1", "A");
     await untilOnline("A");

@@ -2,7 +2,7 @@
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
   "UUID": "com.sogaani.herdr",
   "Name": "Herdr",
-  "Version": "0.1.1.0",
+  "Version": "0.1.2.0",
   "Author": "sogaani",
   "Description": "Watch and approve coding agents running in Herdr, locally or over SSH.",
   "URL": "https://herdr.dev",
@@ -70,7 +70,7 @@
     {
       "UUID": "com.sogaani.herdr.dial",
       "Name": "Agent Dial",
-      "Tooltip": "Rotate to browse agents, press to approve or focus, tap to focus, hold to deny.",
+      "Tooltip": "Shows the focused agent. Rotate to focus the previous / next agent, press and hold run the configured actions.",
       "Icon": "imgs/dial-icon",
       "PropertyInspectorPath": "ui/dial.html",
       "Controllers": [
@@ -83,7 +83,7 @@
         "layout": "layouts/agent-dial.json",
         "StackColor": "#89b4fa",
         "TriggerDescription": {
-          "Rotate": "Browse agents",
+          "Rotate": "Focus previous / next agent",
           "Push": "Short press action (default approve)",
           "Touch": "Focus",
           "LongTouch": "Long press action (default decline)"

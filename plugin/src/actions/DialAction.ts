@@ -18,6 +18,7 @@ import { ALL_HOSTS, pressActionFor, type DialActionSettings } from "../settings.
 import type { AgentRef } from "../store/AgentStore.js";
 import type { PluginContext } from "./context.js";
 import { agentItems, handleInspectorMessage, type InspectorMessage } from "./inspector.js";
+import { cursorIndex, keyOf, newCursor, rotateCursor, syncCursorToFocus, type DialCursor } from "./dialCursor.js";
 import { performPress } from "./performPress.js";
 import { PressGesture, type PressKind } from "./pressGesture.js";
 
@@ -26,14 +27,22 @@ type Settings = DialActionSettings & JsonObject;
 interface View {
   action: SdDialAction<Settings>;
   settings: Settings;
-  /** `${hostId}|${paneId}` of the highlighted agent. */
-  selected: string | null;
+  cursor: DialCursor;
+  /** Debounces `agent.focus` while the dial is still turning. */
+  focusTimer: NodeJS.Timeout | null;
   lastFeedback: string | null;
 }
 
-const keyOf = (ref: AgentRef) => `${ref.hostId}|${ref.agent.pane_id}`;
+/** How long a rotation keeps precedence over incoming focus events. */
+const MANUAL_HOLD_MS = 1500;
+/** Idle time after the last tick before the highlighted agent is focused in Herdr. */
+const FOCUS_DEBOUNCE_MS = 150;
 
-/** Stream Deck + dial: rotate through agents, press / hold run the configured actions, tap focuses. */
+/**
+ * Stream Deck + dial: shows the agent that holds Herdr's focus, rotating moves
+ * that focus to the previous / next agent, press / hold run the configured
+ * actions, tap focuses.
+ */
 @action({ UUID: "com.sogaani.herdr.dial" })
 export class AgentDialAction extends SingletonAction<Settings> {
   private readonly views = new Map<string, View>();
@@ -53,12 +62,14 @@ export class AgentDialAction extends SingletonAction<Settings> {
   override onWillAppear(ev: WillAppearEvent<Settings>): void {
     if (!ev.action.isDial()) return;
     const settings = (ev.payload.settings ?? {}) as Settings;
-    this.views.set(ev.action.id, { action: ev.action, settings, selected: null, lastFeedback: null });
+    this.views.set(ev.action.id, { action: ev.action, settings, cursor: newCursor(), focusTimer: null, lastFeedback: null });
     this.ctx.registry.acquire(ev.action.id, this.hostIdOf(settings));
     this.render(ev.action.id);
   }
 
   override onWillDisappear(ev: WillDisappearEvent<Settings>): void {
+    const view = this.views.get(ev.action.id);
+    if (view?.focusTimer) clearTimeout(view.focusTimer);
     this.views.delete(ev.action.id);
     this.gesture.cancel(ev.action.id);
     this.ctx.registry.release(ev.action.id);
@@ -68,7 +79,7 @@ export class AgentDialAction extends SingletonAction<Settings> {
     const view = this.views.get(ev.action.id);
     if (!view) return;
     view.settings = (ev.payload.settings ?? {}) as Settings;
-    view.selected = null;
+    view.cursor = newCursor();
     this.ctx.registry.acquire(ev.action.id, this.hostIdOf(view.settings));
     this.render(ev.action.id);
   }
@@ -77,11 +88,26 @@ export class AgentDialAction extends SingletonAction<Settings> {
     const view = this.views.get(ev.action.id);
     if (!view) return;
     const refs = this.ctx.store.sorted(this.hostIdOf(view.settings));
-    if (refs.length === 0) return;
-    const current = this.indexOf(view, refs);
-    const next = Math.min(refs.length - 1, Math.max(0, current + ev.payload.ticks));
-    view.selected = keyOf(refs[next]!);
+    const ref = rotateCursor(view.cursor, refs, ev.payload.ticks, MANUAL_HOLD_MS);
+    if (!ref) return;
     this.render(ev.action.id);
+    if (view.focusTimer) clearTimeout(view.focusTimer);
+    view.focusTimer = setTimeout(() => {
+      view.focusTimer = null;
+      void this.focusInHerdr(view, ref);
+    }, FOCUS_DEBOUNCE_MS);
+  }
+
+  /** Moves Herdr's focus to the highlighted agent so the dial and the terminal stay in step. */
+  private async focusInHerdr(view: View, ref: AgentRef): Promise<void> {
+    const conn = this.ctx.registry.get(ref.hostId);
+    if (!conn) return;
+    try {
+      await conn.request("agent.focus", { target: ref.agent.pane_id });
+    } catch (err) {
+      this.ctx.logger.warn(`[herdr] dial focus ${ref.agent.pane_id} failed: ${String(err)}`);
+      await view.action.showAlert();
+    }
   }
 
   override onDialDown(ev: DialDownEvent<Settings>): void {
@@ -113,20 +139,15 @@ export class AgentDialAction extends SingletonAction<Settings> {
     });
   }
 
-  private indexOf(view: View, refs: AgentRef[]): number {
-    if (!view.selected) return 0;
-    const index = refs.findIndex((r) => keyOf(r) === view.selected);
-    return index >= 0 ? index : 0;
-  }
-
   private render(contextId: string): void {
     const view = this.views.get(contextId);
     if (!view) return;
     const hostId = this.hostIdOf(view.settings);
     const refs = this.ctx.store.sorted(hostId);
-    const index = this.indexOf(view, refs);
+    syncCursorToFocus(view.cursor, refs, this.ctx.store.focusedAgents(hostId));
+    const index = cursorIndex(view.cursor, refs);
     const ref = refs[index];
-    if (ref) view.selected = keyOf(ref);
+    if (ref) view.cursor.selected = keyOf(ref);
     const feedback = dialFeedback({
       agent: ref?.agent ?? null,
       state: ref?.state ?? null,
@@ -145,7 +166,7 @@ export class AgentDialAction extends SingletonAction<Settings> {
     const view = this.views.get(contextId);
     if (!view) return;
     const refs = this.ctx.store.sorted(this.hostIdOf(view.settings));
-    const ref = refs[this.indexOf(view, refs)];
+    const ref = refs[cursorIndex(view.cursor, refs)];
     const conn = ref ? this.ctx.registry.get(ref.hostId) : undefined;
     if (!ref || !conn) {
       await view.action.showAlert();

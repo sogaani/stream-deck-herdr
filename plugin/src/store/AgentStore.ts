@@ -103,6 +103,18 @@ export class AgentStore extends EventEmitter {
       .map((x) => x.ref);
   }
 
+  /** The agent holding Herdr's focus on each host (hosts whose focus is on a non-agent pane are omitted). */
+  focusedAgents(hostId: string): AgentRef[] {
+    const hostIds = hostId === ALL_HOSTS ? this.registry.hosts().map((h) => h.id) : [hostId];
+    const refs: AgentRef[] = [];
+    for (const id of hostIds) {
+      const state = this.states.get(id);
+      const agent = state?.focusedPaneId ? state.agents.find((a) => a.pane_id === state.focusedPaneId) : undefined;
+      if (state && agent) refs.push({ hostId: id, hostLabel: this.hostLabel(id), agent, state });
+    }
+    return refs;
+  }
+
   /** Finds an agent by pane id, falling back to its native session id. */
   find(hostId: string, paneId: string | undefined, sessionId?: string): AgentRef | undefined {
     const state = this.states.get(hostId);

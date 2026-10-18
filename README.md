@@ -8,7 +8,7 @@
 | --- | --- |
 | **Agent** | 1 キー = 1 エージェント。状態色（blocked / working / done / idle）とタイトルを表示。短押しと長押し（0.6 秒）の動作は Approve / Decline / Focus pane から選択（既定: 短押し Approve、長押し Decline）。 |
 | **Agent Slot** | 注意順（blocked → done → working → idle）に並べた N 番目のエージェントを自動表示。1〜8 を横一列に置くと「承認待ちが左に集まる一覧」になる。 |
-| **Agent Dial**（Stream Deck +） | ダイヤル回転でエージェントを選択。押下 / 長押しの動作は Agent キーと同じく選択式（既定: Approve / Decline）、タッチでフォーカス。 |
+| **Agent Dial**（Stream Deck +） | Herdr でフォーカス中のエージェントを表示。ダイヤルを回すと前後のエージェントに Herdr のフォーカスが移る（Herdr 側で pane を切り替えるとダイヤルも追従）。押下 / 長押しの動作は Agent キーと同じく選択式（既定: Approve / Decline）、タッチでフォーカス。 |
 
 - 承認は `agent.send_keys`（既定 `enter`）、拒否は `esc`。キーはアクションごとに変更可能（例: `2`、`down enter`）。
 - Approve / Decline は送信直前に `agent.get` で状態を再確認し、blocked 以外にはキーを送らず pane をフォーカスします（Safety 設定で解除可）。
