@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.log
+*.tsbuildinfo
+plugin/com.sogaani.herdr.sdPlugin/bin/
+plugin/com.sogaani.herdr.sdPlugin/logs/
+*.streamDeckPlugin
+.DS_Store

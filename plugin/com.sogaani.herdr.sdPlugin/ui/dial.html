@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Herdr Agent Dial</title>
+    <link rel="stylesheet" href="herdr-pi.css" />
+    <script src="sdpi-components.js"></script>
+  </head>
+  <body data-kind="dial">
+    <h2>Agent dial</h2>
+    <div class="row">
+      <label for="hostId">Host</label>
+      <select id="hostId"></select>
+    </div>
+    <p class="hint">Rotate the dial to browse agents (blocked first). Press and hold run the actions chosen below (defaults: approve / decline). Tap the screen: focus.</p>
+
+    <h2>Press behaviour</h2>
+    <div class="row">
+      <label for="shortPress">Press</label>
+      <select id="shortPress">
+          <option value="approve">Approve</option>
+          <option value="decline">Decline</option>
+          <option value="focus">Focus pane</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="longPress">Hold / long touch</label>
+      <select id="longPress">
+          <option value="approve">Approve</option>
+          <option value="decline">Decline</option>
+          <option value="focus">Focus pane</option>
+      </select>
+    </div>
+    <div class="row">
+      <label for="approveKeys">Approve keys</label>
+      <input id="approveKeys" type="text" placeholder="enter" />
+    </div>
+    <div class="row">
+      <label for="denyKeys">Deny keys</label>
+      <input id="denyKeys" type="text" placeholder="esc" />
+    </div>
+    <div class="row">
+      <label for="requireBlocked">Safety</label>
+      <label class="inline"><input id="requireBlocked" type="checkbox" checked /> <span>Only type when the agent is blocked (otherwise focus it)</span></label>
+    </div>
+    <p class="hint">Approve and Decline type the keys above only while the agent is blocked (Safety); otherwise the pane is focused. Keys use Herdr names such as <code>enter</code>, <code>esc</code>, <code>2</code>, <code>down enter</code>.</p>
+
+    <details open>
+      <summary>Hosts</summary>
+      <div id="hostList" class="host-list"></div>
+      <div id="hostStatus" class="status"></div>
+      <div class="actions">
+        <button id="addHost" class="primary">Add host</button>
+        <button id="importMachines" title="Copy saved SSH machines from the local Herdr installation">Import from Herdr</button>
+      </div>
+
+      <div id="editor" class="editor hidden">
+        <div class="row">
+          <label>Label</label>
+          <input name="label" type="text" placeholder="Workbox" />
+        </div>
+        <div class="row">
+          <label>Connection</label>
+          <select name="mode">
+            <option value="ssh">SSH (remote machine)</option>
+            <option value="local">Local (this machine)</option>
+          </select>
+        </div>
+
+        <div data-mode="local">
+          <div class="row">
+            <label>Herdr session</label>
+            <input name="session" type="text" placeholder="default" />
+          </div>
+          <div class="row">
+            <label>Socket path</label>
+            <input name="socketPath" type="text" placeholder="auto (herdr status --json)" />
+          </div>
+          <div class="row">
+            <label>herdr binary</label>
+            <input name="herdrBinary" type="text" placeholder="auto" />
+          </div>
+        </div>
+
+        <div data-mode="ssh">
+          <div class="row">
+            <label>Host</label>
+            <input name="host" type="text" placeholder="192.168.1.20, workbox.example.com or ~/.ssh/config alias" />
+          </div>
+          <div class="row">
+            <label>Port</label>
+            <input name="port" type="number" min="1" max="65535" placeholder="22" />
+          </div>
+          <div class="row">
+            <label>User</label>
+            <input name="username" type="text" placeholder="you" autocomplete="off" />
+          </div>
+          <div class="row">
+            <label>Authentication</label>
+            <select name="authType">
+              <option value="password">Password</option>
+              <option value="key">Private key file</option>
+              <option value="agent">ssh-agent</option>
+            </select>
+          </div>
+          <div class="row" data-auth="password">
+            <label>Password</label>
+            <input name="password" type="password" autocomplete="off" />
+          </div>
+          <div data-auth="key">
+            <div class="row">
+              <label>Key file</label>
+              <input name="identityFile" type="text" placeholder="~/.ssh/id_ed25519" />
+            </div>
+            <div class="row">
+              <label>Passphrase</label>
+              <input name="passphrase" type="password" autocomplete="off" placeholder="optional" />
+            </div>
+          </div>
+          <p class="hint" data-auth="password">Passwords are stored in Stream Deck's settings file in plain text. Prefer a key or ssh-agent when you can.</p>
+          <div class="row">
+            <label>Herdr session</label>
+            <input name="remoteSession" type="text" placeholder="default" />
+          </div>
+          <div class="row">
+            <label>Remote socket</label>
+            <input name="remoteSocketPath" type="text" placeholder="auto (herdr status --json on the host)" />
+          </div>
+          <p id="hostKeyInfo" class="hint"></p>
+          <button id="resetHostKey" class="hidden">Reset host key</button>
+        </div>
+
+        <div id="editorStatus" class="status"></div>
+        <div class="actions">
+          <button id="testHost">Test connection</button>
+          <button id="saveHost" class="primary">Save</button>
+          <button id="cancelEdit">Cancel</button>
+        </div>
+      </div>
+    </details>
+
+    <script src="herdr-pi.js"></script>
+  </body>
+</html>

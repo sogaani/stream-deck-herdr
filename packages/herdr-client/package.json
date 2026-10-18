@@ -1,0 +1,26 @@
+{
+  "name": "@stream-deck-herdr/herdr-client",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch-agents": "tsx scripts/watch-agents.ts",
+    "ssh-smoke": "tsx scripts/ssh-smoke.ts"
+  },
+  "dependencies": {
+    "ssh-config": "^5.0.0",
+    "ssh2": "^1.17.0"
+  },
+  "devDependencies": {
+    "@types/ssh2": "^1.15.0"
+  }
+}

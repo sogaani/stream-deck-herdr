@@ -1,0 +1,99 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+  "UUID": "com.sogaani.herdr",
+  "Name": "Herdr",
+  "Version": "0.1.0.0",
+  "Author": "sogaani",
+  "Description": "Watch and approve coding agents running in Herdr, locally or over SSH.",
+  "URL": "https://herdr.dev",
+  "Icon": "imgs/plugin-icon",
+  "CategoryIcon": "imgs/category-icon",
+  "Category": "Herdr",
+  "CodePath": "bin/plugin.js",
+  "SDKVersion": 2,
+  "Software": {
+    "MinimumVersion": "7.1"
+  },
+  "OS": [
+    {
+      "Platform": "mac",
+      "MinimumVersion": "13"
+    },
+    {
+      "Platform": "windows",
+      "MinimumVersion": "10"
+    }
+  ],
+  "Nodejs": {
+    "Version": "24",
+    "Debug": "enabled"
+  },
+  "Actions": [
+    {
+      "UUID": "com.sogaani.herdr.agent",
+      "Name": "Agent",
+      "Tooltip": "Shows one Herdr agent's state. Press to approve (when blocked) or focus it; hold to deny.",
+      "Icon": "imgs/agent-icon",
+      "PropertyInspectorPath": "ui/agent.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/key-default",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ]
+    },
+    {
+      "UUID": "com.sogaani.herdr.slot",
+      "Name": "Agent Slot",
+      "Tooltip": "Shows the N-th agent needing attention (blocked first). Press to approve or focus; hold to deny.",
+      "Icon": "imgs/slot-icon",
+      "PropertyInspectorPath": "ui/slot.html",
+      "Controllers": [
+        "Keypad"
+      ],
+      "DisableAutomaticStates": true,
+      "UserTitleEnabled": false,
+      "States": [
+        {
+          "Image": "imgs/key-default",
+          "TitleAlignment": "bottom",
+          "FontSize": 11
+        }
+      ]
+    },
+    {
+      "UUID": "com.sogaani.herdr.dial",
+      "Name": "Agent Dial",
+      "Tooltip": "Rotate to browse agents, press to approve or focus, tap to focus, hold to deny.",
+      "Icon": "imgs/dial-icon",
+      "PropertyInspectorPath": "ui/dial.html",
+      "Controllers": [
+        "Encoder"
+      ],
+      "UserTitleEnabled": false,
+      "Encoder": {
+        "Icon": "imgs/dial-key",
+        "background": "imgs/dial-bg",
+        "layout": "layouts/agent-dial.json",
+        "StackColor": "#89b4fa",
+        "TriggerDescription": {
+          "Rotate": "Browse agents",
+          "Push": "Short press action (default approve)",
+          "Touch": "Focus",
+          "LongTouch": "Long press action (default decline)"
+        }
+      },
+      "States": [
+        {
+          "Image": "imgs/dial-key"
+        }
+      ]
+    }
+  ]
+}

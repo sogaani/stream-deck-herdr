@@ -1,0 +1,101 @@
+{
+  "$schema": "https://schemas.elgato.com/streamdeck/plugins/layout.json",
+  "id": "herdr-agent-dial",
+  "items": [
+    {
+      "key": "state-bar",
+      "type": "pixmap",
+      "rect": [
+        0,
+        0,
+        200,
+        6
+      ],
+      "value": "",
+      "background": "#6c7086"
+    },
+    {
+      "key": "title",
+      "type": "text",
+      "rect": [
+        12,
+        10,
+        130,
+        28
+      ],
+      "font": {
+        "size": 16,
+        "weight": 600
+      },
+      "alignment": "left",
+      "text-overflow": "ellipsis",
+      "color": "#ffffff"
+    },
+    {
+      "key": "subtitle",
+      "type": "text",
+      "rect": [
+        12,
+        40,
+        176,
+        22
+      ],
+      "font": {
+        "size": 12
+      },
+      "alignment": "left",
+      "text-overflow": "ellipsis",
+      "color": "#a6adc8"
+    },
+    {
+      "key": "status",
+      "type": "text",
+      "rect": [
+        12,
+        66,
+        100,
+        24
+      ],
+      "font": {
+        "size": 14,
+        "weight": 700
+      },
+      "alignment": "left",
+      "color": "#89b4fa"
+    },
+    {
+      "key": "position",
+      "type": "text",
+      "rect": [
+        150,
+        10,
+        44,
+        28
+      ],
+      "font": {
+        "size": 14
+      },
+      "alignment": "right",
+      "color": "#a6adc8"
+    },
+    {
+      "key": "indicator",
+      "type": "bar",
+      "rect": [
+        120,
+        72,
+        68,
+        12
+      ],
+      "range": {
+        "min": 0,
+        "max": 100
+      },
+      "subtype": 3,
+      "bar_bg_c": "#313244",
+      "bar_fill_c": "#89b4fa",
+      "bar_border_c": "#11111b",
+      "value": 0
+    }
+  ]
+}

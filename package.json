@@ -1,0 +1,26 @@
+{
+  "name": "stream-deck-herdr",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Stream Deck plugin for monitoring and approving Herdr coding agents",
+  "license": "MIT",
+  "workspaces": [
+    "packages/*",
+    "plugin"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "test": "vitest run",
+    "typecheck": "tsc -p packages/herdr-client/tsconfig.json --noEmit && tsc -p plugin/tsconfig.json",
+    "validate": "npm run validate -w plugin",
+    "pack": "npm run build && npm run pack -w plugin",
+    "watch-agents": "npm run watch-agents -w packages/herdr-client",
+    "ssh-smoke": "npm run ssh-smoke -w packages/herdr-client"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0",
+    "vitest": "^3.0.0"
+  }
+}
